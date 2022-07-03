@@ -1,0 +1,18 @@
+{
+  "name": "ksane",
+  "version": "1.0.0",
+  "description": "",
+  "main": "js/base/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node js/base/server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1"
+  }
+}

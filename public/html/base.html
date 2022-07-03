@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale = 1.0" />
+
+		<link rel="stylesheet" href="./../css/includes/default.css">
+		<link rel="stylesheet" href="./../css/base.css">
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script type="module" src="./../js/base.js"></script>
+
+		<title>KSane</title>
+	</head>
+	<body style="max-width: 100%; min-height: 100vh">
+		<div id="container">
+			<div id="left">
+				<div id="header">
+					<h1>Track</h1>
+					<button id="createEntry">
+					</button>
+				</div>
+				<div id="track-container">
+					<div id="track-disp">
+					</div>
+				</div>
+			</div>
+			<div id="info-container">
+				<div id="info-title">
+					<h1 id="details-title">Click on an entry to view it</h1>
+					<p id="details-subject"></p>
+				</div>
+				<div id="details">
+					<p id="details-desc">
+						Description...
+					</p>
+					<p id="details-deadline">
+						
+					</p>
+					<p id="details-offset">
+						
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<div id="modalWindow">
+			<div id="modalContainer">
+				<div id="modalHeader">
+					<h1>Create new entry</h1>
+					<button id="modalExit">[ <span>exit</span> ]</button>
+				</div>
+				<div id="inputContainer">
+					<form id="inputForm">
+						<label for="Subject">Entry's subject</label>
+						<input type="text" name="Subject" placeholder="Subj." id="subjInput" required>
+
+						<label for="title">Entry's title</label>
+						<input type="text" name="title" placeholder="Title" id="titleInput" required>
+
+						<label for="desc">Entry's Description</label>
+						<input type="text" name="desc" placeholder="Desc." id="descInput" required>
+
+						<label for="start">Start</label>
+						<input type="date" name="start" id="startDateInput" required>
+
+						<label for="end">Deadline</label>
+						<input type="date" name="end" id="endDateInput" required>
+						<p id="inputErrorDisp"></p>
+					</form>
+					<button id="entryCreateSubmit" type="submit">Create</button>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

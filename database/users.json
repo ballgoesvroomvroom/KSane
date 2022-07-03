@@ -1,0 +1,68 @@
+{
+	"admin": {
+		"password": "thisisntmypassword",
+		"primary": {
+			"geography": {
+				"entries": [
+					[
+						"2022-07-02",
+						"wc gateway 1",
+						"climate with tropical!!",
+						"2022-07-05",
+						0
+					],
+					[
+						"2022-07-05",
+						"wc gateway 2",
+						"what is in here i wonder",
+						"2022-07-11",
+						1
+					],
+					[
+						"2022-07-10",
+						"review of tect plates gw 1",
+						"earthquakes and volcanoes",
+						"2022-07-12",
+						2
+					],
+					[
+						"2022-07-12",
+						"GI tourism",
+						"different sampling methods, wooahhh",
+						"2022-07-15",
+						3
+					]
+				],
+				"metadata": {
+					"offsetFrom": "2022-07-03",
+					"offset": 1
+				}
+			},
+			"hello": {
+				"entries": [
+					[
+						"2022-07-04",
+						"not geog!!",
+						"this is soooo good!",
+						"2022-07-06",
+						4
+					],
+					[
+						"2022-07-01",
+						"not geog pt 2!!",
+						"not good at all :(",
+						"2022-07-19",
+						5
+					]
+				],
+				"metadata": {
+					"offsetFrom": "",
+					"offset": 0
+				}
+			}
+		},
+		"metadata": {
+			"g_id": 5
+		}
+	}
+}
