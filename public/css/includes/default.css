@@ -63,7 +63,7 @@ button {
 /* FINISH CSS RESET */
 
 :root {
-	--primary-color: #fffde8;
+	--primary-color: #fffcf5;
 	--primary-text-color: #4a4a4a;
 	--secondary-color: #c4dfaa;
 	--secondary-text-color: #d9d9d9;
@@ -142,6 +142,9 @@ a {
 body, html {
 	width: 100%;
 	height: 100%;
+
+	padding: 0;
+	margin: 0;
 
 	line-height: 1.5;
 	font-family: "DM Sans", sans-serif;;
