@@ -1,3 +1,6 @@
+import Modal from "/js/includes/modalService.js";
+// import cmdPalette from "/js/includes/cmdPalette.js";
+
 $(document).ready(() => {
 	const $selectors = {
 		"track-container": $("#track-container"),
@@ -12,7 +15,9 @@ $(document).ready(() => {
 		"createEntry": $("#createEntry"),
 
 		"modalWindow": $("#modalWindow"),
-		"modalContainer": $("#modalContainer"),
+		"createModal": $("#createModal"),
+		"cmdPalette": $("#cmdPalette"),
+
 		"modalExit": $("#modalExit"),
 
 		"subjInput": $("#subjInput"),
@@ -474,26 +479,17 @@ $(document).ready(() => {
 		}, 2000)
 	}
 
-	function toggleModal(toToggle) {
-		// toToggle: booelan; whether to display modal
+	const modalWindow = Modal.registerWindow($selectors["modalWindow"]);
 
-		$selectors["modalWindow"].css("display", toToggle ? "block" : "none");
-	}
+	const createPanel = modalWindow.registerPanel($selectors["createModal"]);
+	const cmdPalettePanel = modalWindow.registerPanel($selectors["cmdPalette"]);
 
-	$selectors["modalWindow"].on("click", function(e) {
-		toggleModal(false);
-	})
+	// exit buttons
+	createPanel.registerExitButtons($selectors["modalExit"]);
 
-	$selectors["modalExit"].on("click", function(e) {
-		toggleModal(false);
-	})
-
-	$selectors["modalContainer"].on("click", function(e) {
-		e.stopPropagation();
-	})
-
+	// trigger buttons
 	$selectors["createEntry"].on("click", function(e) {
-		toggleModal(true);
+		createPanel.show(true);
 	})
 
 	$selectors["entryCreateSubmit"].on("click", function(e) {
@@ -550,5 +546,15 @@ $(document).ready(() => {
 		}).catch(err => {
 			dispInputErrorMsg(`Failed to submit: ${err}`);
 		})
+	})
+
+	$(window).keydown(function(e) {
+		var triggered = e.ctrlKey && e.shiftKey && e.code == "KeyP";
+		if (triggered) {
+			// ctrl + shift + p
+			// toggle command palette
+			e.preventDefault();
+			cmdPalettePanel.toggle();
+		}
 	})
 })

@@ -41,6 +41,34 @@
 	padding-bottom: 100px;
 }
 
+#info-title-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
+
+	width: 100%;
+}
+
+#details-expand {
+	height: 36px;
+	flex-basis: 30px;
+	flex-grow: 0;
+	flex-shrink: 0;
+
+	margin-top: 10px;
+
+	filter: invert(28%) sepia(4%) saturate(0%) hue-rotate(247deg) brightness(90%) contrast(84%);
+	background-image: url("../icons/more.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+#details-title {
+	flex-shrink: 1;
+}
+
 #details-desc {
 	min-height: 50px;
 	padding: 5px;
@@ -67,22 +95,26 @@
 }
 
 #createEntry {
-	width: 30px;
-	height: 30px;
+	width: 36px;
+	height: 36px;
+	margin: 2px 0;
+	margin-left: 1px;
 
 	filter: invert(28%) sepia(4%) saturate(0%) hue-rotate(247deg) brightness(90%) contrast(84%);
 	background-image: url("../icons/add.svg");
-	background-size: 24px;
+	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
 
-	transition-property: background-size;
+	transition-property: width height;
 	transition-duration: 75ms;
 	transition-timing-function: ease-in;
 }
 
 #createEntry:hover {
-	background-size: 30px;
+	margin: 0;
+	width: 38px;
+	height: 38px;
 }
 
 #track-container {
@@ -169,21 +201,35 @@
 	background-color: rgba(0, 0, 0, .3);
 }
 
-#modalContainer {
-	position: relative;
-	display: flex;
-	flex-direction: column;
+.modalContainer {
+	max-height: calc(100% - 40px);
 
-	top: 20%;
-	width: 70%;
-	height: auto;
+	overflow-y: auto;
 
 	padding: 10px;
-	margin: 0 auto;
+	margin: 10px auto;
 
 	border-radius: .4rem;
 	box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 	background-color: var(--primary-color);
+}
+
+#createModal {
+	position: relative;
+	display: hidden;
+	flex-direction: column;
+
+	width: 70%;
+	height: auto;
+}
+
+#cmdPalette {
+	position: relative;
+	display: none;
+	flex-direction: column;
+
+	width: 70%;
+	height: auto;
 }
 
 #modalHeader {
@@ -233,16 +279,6 @@
 	color: var(--primary-text-color);
 }
 
-#inputForm > input {
-	all: unset;
-
-	padding: 5px 1px;
-	margin-bottom: 10px;
-	box-shadow: 3px 3px 0px 0px var(--accent-color),
-		0 0 1px 0 #000;
-	color: var(--accent-highlight-color);
-}
-
 #inputErrorDisp {
 	padding-bottom: 25px;
 	color: var(--heavy-warning);
@@ -251,6 +287,15 @@
 
 #inputErrorDisp.hidden {
 	opacity: 0;
+}
+
+#cmdPaletteInput {
+	width: 100%;
+}
+
+#cmdPaletteInput > input {
+	width: calc(100% - 5px);
+	margin: 0;
 }
 
 

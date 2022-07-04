@@ -30,7 +30,10 @@
 			</div>
 			<div id="info-container">
 				<div id="info-title">
-					<h1 id="details-title">Click on an entry to view it</h1>
+					<div id="info-title-container">
+						<h1 id="details-title">Click on an entry to view it</h1>
+						<button id="details-expand"></button>
+					</div>
 					<p id="details-subject"></p>
 				</div>
 				<div id="details">
@@ -48,7 +51,7 @@
 		</div>
 
 		<div id="modalWindow">
-			<div id="modalContainer">
+			<div id="createModal" class="modalContainer">
 				<div id="modalHeader">
 					<h1>Create new entry</h1>
 					<button id="modalExit">[ <span>exit</span> ]</button>
@@ -69,9 +72,17 @@
 
 						<label for="end">Deadline</label>
 						<input type="date" name="end" id="endDateInput" required>
-						<p id="inputErrorDisp"></p>
+						<p id="inputErrorDisp">&nbsp;</p>
 					</form>
 					<button id="entryCreateSubmit" type="submit">Create</button>
+				</div>
+			</div>
+			<div id="cmdPalette" class="modalContainer">
+				<div id="cmdPaletteHeader">
+					<h1>Command Palette (Ctrl + Shift + P)</h1>
+				</div>
+				<div id="cmdPaletteInput">
+					<input type="text" name="command" placeholder="Command">
 				</div>
 			</div>
 		</div>
