@@ -506,12 +506,12 @@ $(document).ready(() => {
 			return dispInputErrorMsg("Input length (subj.) must not exceed 64 characters.");
 		} else if (title.length < 3) {
 			return dispInputErrorMsg("Input length (title) must be at least 3 characters.");
-		} else if (title.length > 1024) {
-			return dispInputErrorMsg("Input length (title) must not exceed 1024 characters.");
+		} else if (title.length > 64) {
+			return dispInputErrorMsg("Input length (title) must not exceed 64 characters.");
 		} else if (desc.length < 3) {
 			return dispInputErrorMsg("Input length (desc) must be at least 3 characters.");
-		} else if (desc.length > 64) {
-			return dispInputErrorMsg("Input length (desc) must not exceed 64 characters.");
+		} else if (desc.length > 1024) {
+			return dispInputErrorMsg("Input length (desc) must not exceed 1024 characters.");
 		} else if (startDate.length == 0) {
 			return dispInputErrorMsg("Start date required");
 		} else if (endDate.length == 0) {
