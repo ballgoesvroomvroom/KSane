@@ -91,7 +91,7 @@ $(document).ready(() => {
 		 */
 		$selectors["details-title"].text(data.title);
 		$selectors["details-subject"].text(data.subject);
-		$selectors["details-desc"].text(data.desc);
+		$selectors["details-desc"].html(data.desc); // .html() to include <br> tags
 		$selectors["details-deadline"].text(`${data.deadline} [${data.daysTillDeadline} days]`);
 
 		// offset
@@ -196,6 +196,12 @@ $(document).ready(() => {
 	// return the days since epoch from date object (with localised timezone)
 	function fromLocalDateToEpochDays(date) {
 		return Math.floor((date.getTime() -date.getTimezoneOffset() *60000) /8.64e7);
+	}
+
+	// converts literal line feeds (\n) in string to '<br>' tags
+	var lb_regex = /\\n/gm;
+	function literalLFtoBR(s) {
+		return s.replaceAll(lb_regex, "<br>");
 	}
 
 	// "loads" data; parses data, adds some extra data; upgrades metadata field
@@ -334,7 +340,7 @@ $(document).ready(() => {
 			let loadPayload = {
 				"title": data[i][1],
 				"subject": data[i][data[i].length -1][1], // last index has upgraded metadata (diff from what is stored on the server); loaded by upgradeData()
-				"desc": data[i][2],
+				"desc": literalLFtoBR(data[i][2]),
 				"deadline": deadline,
 				"offset": data[i][data[i].length -1][2],
 				"totalDays": totalDays,
