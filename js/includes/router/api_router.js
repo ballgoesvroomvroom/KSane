@@ -65,7 +65,7 @@ router.post("/entry/create", (req, res) => {
 			throw new Error(errmsg.invalid);
 		} else if (typeof content.title != "string" || content.title.length < 3 || content.title.length > 64) {
 			throw new Error(errmsg.invalid);
-		} else if (typeof content.desc != "string" || content.desc.length < 3 || content.desc.length > 64) {
+		} else if (typeof content.desc != "string" || content.desc.length < 3 || content.desc.length > 1024) {
 			throw new Error(errmsg.invalid);
 		} else if (typeof content.startDate != "string" || typeof content.endDate != "string") {
 			throw new Error(errmsg.type);
