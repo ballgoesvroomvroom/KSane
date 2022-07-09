@@ -1,16 +1,33 @@
 import Modal from "/js/includes/modalService.js";
+import Selector from "/js/includes/selectionService.js";
+import ErrorDisplay from "/js/includes/errorDisplay.js";
 // import cmdPalette from "/js/includes/cmdPalette.js";
+
 
 $(document).ready(() => {
 	const $selectors = {
 		"track-container": $("#track-container"),
 		"track-disp": $("#track-disp"),
 
+		"info-container": $("#info-container"),
+
+		"more-info-container": $("#more-info-container"),
+		"more-info-content": $("#more-info-content"),
+
 		"details-title": $("#details-title"),
 		"details-subject": $("#details-subject"),
 		"details-desc": $("#details-desc"),
+		"details-countdown": $("#details-countdown"),
 		"details-deadline": $("#details-deadline"),
 		"details-offset": $("#details-offset"),
+
+		"details-expand": $("#details-expand"),
+		"details-close": $("#details-close"),
+
+		"action-delay": $("#action-delay"),
+		"action-edit": $("#action-edit"),
+		"action-delete": $("#action-delete"),
+		"more-info-errordisp": $("#more-info-errordisp"),
 
 		"createEntry": $("#createEntry"),
 
@@ -30,6 +47,8 @@ $(document).ready(() => {
 		"entryCreateSubmit": $("#entryCreateSubmit")
 	}
 
+	var selector = new Selector();
+
 	function resizeTrack() {
 		// resize track bar
 		var container_ht = $selectors["track-container"].height();
@@ -42,82 +61,6 @@ $(document).ready(() => {
 
 	// initialisation call
 	resizeTrack();
-
-	function getDelayRepr(offset) {
-		// return a string based on the offset (days)
-		// +ve offset; delayed deadlines
-		// -ve offset; quicker deadlines (brought-forward)
-		console.log(offset);
-		if (offset > 20) {
-			return "Severely behind time!!"
-		} else if (offset > 15) {
-			return "Skewering! ╰（‵□′）╯"
-		} else if (offset > 10) {
-			return "Derailed.. (⊙_⊙)？"
-		} else if (offset > 5) {
-			return "Track ending."
-		} else if (offset > 0) {
-			return "Losing track."
-		} else if (offset < -20) {
-			return "Soooo fasttt (ノω<。)ノ))☆.。"
-		} else if (offset < -15) {
-			return "Top notch!"
-		} else if (offset < -10) {
-			return "As fast as a leopard :)"
-		} else if (offset < -5) {
-			return "Gaining traction!"
-		} else if (offset < 0) {
-			return "Make sure not to leave anything behind! ( •̀ ω •́ )✧"
-		} else {
-			return "Keeping it cool 🎐"
-		}
-	}
-
-	const warning_levels = [
-		"heavy-warning",
-		"medium-warning",
-		"light-warning",
-	]
-	// load details into right panel
-	function loadDetails(data) {
-		/* data:
-		 * 		"title": "W&C Gateway 1",
-		 * 		"subject": "Geography",
-		 * 		"desc": "Description here..",
-		 * 		"deadline": "23/08/22",
-		 * 		"offset": 0,
-		 * 		"totalDays": 0,
-		 * 		"daysTillDeadline": 0,
-		 */
-		$selectors["details-title"].text(data.title);
-		$selectors["details-subject"].text(data.subject);
-		$selectors["details-desc"].html(data.desc); // .html() to include <br> tags
-		$selectors["details-deadline"].text(`Deadline: ${data.deadline} [${data.daysTillDeadline} days]`);
-
-		// offset
-		var offset_rep = getDelayRepr(data.offset);
-		var suffix;
-		if (data.offset > 0) {
-			// lagging behind
-			suffix = `[${data.offset} day${data.offset > 1 ? "s" : ""} behind]`;
-		} else if (data.offset < 0) {
-			// ahead of time
-			suffix = `[${data.offset} day${data.offset > 1 ? "s" : ""} ahead]`;
-		} else {
-			suffix = "[No extensions; on track]"
-		}
-		$selectors["details-offset"].text(`${offset_rep} ${suffix}`);
-
-		// show warning colour based on totalDays and daysTillDeadline
-		var danger = data.daysTillDeadline /Math.ceil(0.25 *data.totalDays);
-		if (danger > 3) {
-			// no warning needed
-		} else {
-			danger = Math.floor(danger);
-			$selectors["details-deadline"].css("color", `var(--${warning_levels[danger]})`)
-		}
-	}
-
 
 	// create new tracker selection container
 	function newTrackerSelection() {
@@ -204,6 +147,14 @@ $(document).ready(() => {
 		return s.replaceAll(lb_regex, "<br>");
 	}
 
+	// return a unique negative id not yet returned; decremental
+	// used alongside with id for selections; -1 is reserved for the default view hence starts at -2
+	var getNegativeUid_counter = -1; // starting from -2
+	function getNegativeUid() {
+		getNegativeUid_counter -= 1;
+		return getNegativeUid_counter;
+	}
+
 	// "loads" data; parses data, adds some extra data; upgrades metadata field
 	function upgradeData(data) {
 		// iterate through each subject and "load" them
@@ -239,17 +190,27 @@ $(document).ready(() => {
 				}
 
 				// "upgrade" metadata (last element)
-				entry[entry.length -1] = [entry[entry.length -1], subj, metadata.offset]; // [g_id, subjectTitle, subjectOffset]
+				// if it is a special tracker, generate a uid for this tracker and assign its type (-1, -2) to the end of metadata
+				var tracker_type = entry[entry.length -1];
+				var tracker_uuid = entry[entry.length -1]; // if positive or zero; represents tracker id
+				if (tracker_type >= 0) {
+					tracker_type = 0; // 0 for normal, -1 for month tracker, -2 for deadline tracker
+				} else {
+					tracker_uuid = getNegativeUid();
+				}
+				entry[entry.length -1] = [tracker_uuid, subj, metadata.offset, tracker_type]; // [g_id, subjectTitle, subjectOffset, tracker_type]
 			}
 		}
 	}
 
 	// update track with data fetched from server side
+	const rawTodayDate = new Date(); // actual day without any offsets applied
+	const rawTodayDay = fromLocalDateToEpochDays(rawTodayDate);
 	function updateTrack(rawData, scope=30, g_offset=0) {
 		// scope: only capture those within 30days
 		// g_offset: howmany days to offset this calculation
 		var now = new Date();
-		now = new Date(now.getTime() +(g_offset *24 *60 *60 *1000))
+		now = new Date(now.getTime() +(g_offset *24 *60 *60 *1000)) // add in g_offset of days
 		var day = fromLocalDateToEpochDays(now);
 
 		var data = []; // stores the filtered data (data within the scope)
@@ -277,19 +238,20 @@ $(document).ready(() => {
 						entry[1],
 						`Deadline for ${entry[1]}`,
 						deadline,
-						[-2, subj, entry[entry.length -1][2]]
+						[getNegativeUid(), subj, entry[entry.length -1][2], -2]
 					])
 				}
 			}
 		}
 
 		// create a fake entry representing today's date
+		var monthTracker_uuid = getNegativeUid();
 		data.push([
 			day,
 			formatDate(now),
 			"You got this!",
 			day,
-			[-1, "Day of the month again", 0]
+			[monthTracker_uuid, "Day of the month again", 0, -1] // 2nd last is offset; last is trackertype
 		])
 
 		// sort the filtered data by their days
@@ -311,11 +273,11 @@ $(document).ready(() => {
 
 			// for month markers
 			// id of -1 represents month markers
-			var isMonth = data[i][data[i].length -1][0] == -1;
+			var isMonth = data[i][data[i].length -1][3] == -1;
 
 			// for deadline markers
 			// id of -2 represents deadline markers
-			var isDeadline = data[i][data[i].length -1][0] == -2;
+			var isDeadline = data[i][data[i].length -1][3] == -2;
 
 			// calculate markerType
 			// 1 for normal; 2 for month markers; 3 for deadline markers
@@ -337,18 +299,17 @@ $(document).ready(() => {
 			$tracker.appendTo($container);
 
 			// add event for $tracker_trigger
-			let loadPayload = {
+			let payload = {
 				"title": data[i][1],
 				"subject": data[i][data[i].length -1][1], // last index has upgraded metadata (diff from what is stored on the server); loaded by upgradeData()
 				"desc": literalLFtoBR(data[i][2]),
 				"deadline": deadline,
 				"offset": data[i][data[i].length -1][2],
 				"totalDays": totalDays,
-				"daysTillDeadline": data[i][3] -Math.max(data[i][0], day) // use current date if starting date has passed
+				"daysTillDeadline": data[i][3] -Math.max(data[i][0], day), // use current date if starting date has passed
+				"daysTillStart": Math.max(data[i][0] - rawTodayDay, 0), // amount of days left till start
 			};
-			$tracker_trigger.on("click", () => {
-				loadDetails(loadPayload);
-			})
+			selector.addSelection(data[i][data[i].length -1][0], payload, $tracker_trigger, $tracker);
 
 			prevDay = data[i][0];
 		}
@@ -419,14 +380,14 @@ $(document).ready(() => {
 		})
 	}
 
-	function getData() {
+	function getData(ditchCache) {
 		// check cached value if its up to date
 		var md = localStorage.getItem("metadata");
 		var cached = localStorage.getItem("cachedData")
 
 		md = JSON.parse(md);
 		cached = JSON.parse(cached);
-		if (md && md.hasOwnProperty("cached_id") && cached) {
+		if (!ditchCache && md && md.hasOwnProperty("cached_id") && cached) {
 			return fetch("/api/metadata", {
 				"method": "GET"
 			}).then(r => {
@@ -458,37 +419,60 @@ $(document).ready(() => {
 		}
 	}
 
-	getData().then(d => {
-		upgradeData(d);
-		// $selectors["track-container"].empty();
-		var next = true;
-		var c = 0;
-		while (next) {
-			next = updateTrack(d, 30, 30 *c);
-			c += 1
+	function emptyTrack() {
+		// empty all tracker instances except for the track line itself
+		var $d = $selectors["track-container"].children()
+		for (let i = 0; i < $d.length; i++) {
+			var $c = $($d[i]);
+			if ($c.attr("id") === $selectors["track-disp"].attr("id")) {
+				// is track-disp; do not remove
+			} else {
+				$c.remove();
+			}
 		}
+	}
+
+	function refreshTrack(ditchCache) {
+		getData(ditchCache).then(d => {
+			upgradeData(d);
+
+			selector.clear();
+			emptyTrack(); // clear old instances of trackers if any
+			var next = true;
+			var c = 0;
+			while (next) {
+				next = updateTrack(d, 30, 30 *c);
+				c += 1
+			}
+		})
+	}
+	refreshTrack();
+
+	// details-expand button
+	$selectors["details-expand"].on("click", function(e) {
+		selector.infoPanel.showActionPanel(true);
 	})
 
-	let tick = 0;
-	function dispInputErrorMsg(errMsg) {
-		tick += 1;
-		let l_tick = tick;
+	// details-close button
+	$selectors["details-close"].on("click", function(e) {
+		selector.infoPanel.showActionPanel(false);
+	})
 
-		$selectors["inputErrorDisp"].removeClass("hidden");
-		$selectors["inputErrorDisp"].text(errMsg);
-
-		setTimeout(() => {
-			if (tick == l_tick) {
-				// still in the same session
-				$selectors["inputErrorDisp"].addClass("hidden");
-			}
-		}, 2000)
-	}
+	// backgroundclick close
+	$selectors["more-info-content"].on("click", function(e) {
+		e.stopPropagation();
+	})
+	$selectors["more-info-container"].on("click", function(e) {
+		selector.infoPanel.showActionPanel(false);
+	})
 
 	const modalWindow = Modal.registerWindow($selectors["modalWindow"]);
 
 	const createPanel = modalWindow.registerPanel($selectors["createModal"]);
 	const cmdPalettePanel = modalWindow.registerPanel($selectors["cmdPalette"]);
+
+	// error display
+	const createPanelErrorDisp = new ErrorDisplay($selectors["inputErrorDisp"]);
 
 	// exit buttons
 	createPanel.registerExitButtons($selectors["modalExit"]);
@@ -507,21 +491,21 @@ $(document).ready(() => {
 
 		// validate data
 		if (subj.length < 3) {
-			return dispInputErrorMsg("Input length (subj.) must be at least 3 characters.");
+			return createPanelErrorDisp.display("Input length (subj.) must be at least 3 characters.");
 		} else if (subj.length > 64) {
-			return dispInputErrorMsg("Input length (subj.) must not exceed 64 characters.");
+			return createPanelErrorDisp.display("Input length (subj.) must not exceed 64 characters.");
 		} else if (title.length < 3) {
-			return dispInputErrorMsg("Input length (title) must be at least 3 characters.");
+			return createPanelErrorDisp.display("Input length (title) must be at least 3 characters.");
 		} else if (title.length > 64) {
-			return dispInputErrorMsg("Input length (title) must not exceed 64 characters.");
+			return createPanelErrorDisp.display("Input length (title) must not exceed 64 characters.");
 		} else if (desc.length < 3) {
-			return dispInputErrorMsg("Input length (desc) must be at least 3 characters.");
+			return createPanelErrorDisp.display("Input length (desc) must be at least 3 characters.");
 		} else if (desc.length > 1024) {
-			return dispInputErrorMsg("Input length (desc) must not exceed 1024 characters.");
+			return createPanelErrorDisp.display("Input length (desc) must not exceed 1024 characters.");
 		} else if (startDate.length == 0) {
-			return dispInputErrorMsg("Start date required");
+			return createPanelErrorDisp.display("Start date required");
 		} else if (endDate.length == 0) {
-			return dispInputErrorMsg("End date required");
+			return createPanelErrorDisp.display("End date required");
 		}
 
 		// after validation
@@ -550,7 +534,7 @@ $(document).ready(() => {
 		}).then(r => {
 			window.location.replace("/");
 		}).catch(err => {
-			dispInputErrorMsg(`Failed to submit: ${err}`);
+			createPanelErrorDisp.display(`Failed to submit: ${err}`);
 		})
 	})
 
@@ -562,5 +546,47 @@ $(document).ready(() => {
 			e.preventDefault();
 			cmdPalettePanel.toggle();
 		}
+	})
+
+	// action buttons on info panel
+	const deleteConfirmationModal = modalWindow.registerPanel($selectors["cmdPalette"]);
+
+	// error displays
+	const actionPanelErrorDisp = new ErrorDisplay($selectors["more-info-errordisp"])
+
+	// delete action
+	$selectors["action-delete"].on("click", function(e) {
+		var actId = selector.currentSelectedId;
+
+		if (actId < 0) {
+			// currently selected not an actual entry marker but instead is a deadline marker or a month marker
+			actionPanelErrorDisp.display(`Can't delete none entry`)
+			return;
+		}
+
+		fetch("/api/entry/delete", {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				id: actId
+			})
+		}).then(r => {
+			if (r.status == 200) {
+				return r.json();
+			} else {
+				return new Promise(res => {
+					res(r.json());
+				}).then(d => {
+					return Promise.reject(d.error);
+				})
+			}
+		}).then(d => {
+			// selector.removeSelection(actId);
+			refreshTrack(true);
+		}).catch(err => {
+			actionPanelErrorDisp.display(`Failed to delete: ${err}`)
+		})
 	})
 })
