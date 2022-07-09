@@ -145,6 +145,14 @@
 	flex-direction: row;
 }
 
+.tracker.square {
+	--tracker-highlight-color: var(--tracker-square-color);
+}
+
+.tracker.rotsquare {
+	--tracker-highlight-color: var(--tracker-rotsquare-color);
+}
+
 .tracker:hover {
 	--tracker-highlight-color: var(--secondary-color);
 }
@@ -167,15 +175,15 @@
 	transition: background-color 150ms ease-in;
 }
 
-.tracker-dot-container.square > div {
+.tracker.square > .tracker-dot-container > div {
 	border-radius: 15%;
 }
 
-.tracker-dot-container.rotsquare {
+.tracker.rotsquare > .tracker-dot-container {
 	margin: 0 3px;
 }
 
-.tracker-dot-container.rotsquare > div {
+.tracker.rotsquare > .tracker-dot-container > div {
 	width: 14px;
 	height: 14px;
 

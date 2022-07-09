@@ -92,7 +92,7 @@ $(document).ready(() => {
 		$selectors["details-title"].text(data.title);
 		$selectors["details-subject"].text(data.subject);
 		$selectors["details-desc"].html(data.desc); // .html() to include <br> tags
-		$selectors["details-deadline"].text(`${data.deadline} [${data.daysTillDeadline} days]`);
+		$selectors["details-deadline"].text(`Deadline: ${data.deadline} [${data.daysTillDeadline} days]`);
 
 		// offset
 		var offset_rep = getDelayRepr(data.offset);
@@ -148,9 +148,9 @@ $(document).ready(() => {
 		$button.text(header);
 
 		if (type == 2) {
-			$dotcontainer.addClass("square");
+			$tracker.addClass("square");
 		} else if (type == 3) {
-			$dotcontainer.addClass("rotsquare");
+			$tracker.addClass("rotsquare");
 		}
 
 		$dot.appendTo($dotcontainer);
