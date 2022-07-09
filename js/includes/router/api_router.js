@@ -85,10 +85,42 @@ router.post("/entry/create", (req, res) => {
 
 		res.status(200).json({"ok": true});
 	} catch (err) {
-		console.error(err);
 		res.statusMessage = err.message;
 		res.status(400).json({"error": `Malformed input - ${err.message}`});
 	}
+})
+
+// ENTRY/DELETE
+router.delete("/entry/delete", (req, res) => {
+	// input validation
+	try {
+		let content = req.body;
+
+		if (content == null || content.id == null) {
+			throw new Error(errmsg.missing);
+		}
+
+		let id = parseInt(content.id);
+		if (isNaN(content.id) || id <= 0) {
+			// id can never be 0; assigned with ++g_id
+			throw new Error(errmsg.invalid);
+		}
+
+		var [success, data] = entry.delete(req.session.username, id);
+		if (!success) {
+			throw new Error(data);
+		} else {
+			res.status(200).json({"ok": true});
+		}
+	} catch (err) {
+		res.statusMessage = err.message;
+		res.status(400).json({"error": `Malformed input - ${err.message}`});
+	}
+})
+
+router.use((req, res, next) => {
+	// end of stack
+	res.status(404).json({"error": "404 Not Found"});
 })
 
 module.exports = {
