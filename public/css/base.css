@@ -25,7 +25,7 @@
 	position: relative;
 	flex-basis: 350px;
 	height: calc(100% - 20px);
-	overflow-y: auto;
+	overflow-y: overlay;
 
 	padding: 10px;
 
@@ -117,6 +117,10 @@
 .action-buttons:hover {
 	margin: 0;
 	font-size: 1.05em;
+}
+
+#action-fasten:hover {
+	color: var(--granted-green);
 }
 
 #action-delay:hover {
@@ -302,6 +306,7 @@
 .tracker-text {
 	margin-left: 10px;
 	font-size: 1.2em;
+	text-align: left;
 	color: var(--tracker-highlight-color);
 	transition: color 150ms ease-in;
 }

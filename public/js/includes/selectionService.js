@@ -216,6 +216,11 @@ class InfoPanel {
 				"border-bottom-left-radius": ".4rem",
 				"border-bottom-right-radius": ".4rem",
 			});
+
+			// prevent scrolling on back frame
+			this.$selectors["info-container"].css({
+				"overflow-y": "clip"
+			})
 		} else {
 			// reset to initial (defined in external css)
 			this.$selectors["more-info-container"].css({
@@ -223,6 +228,9 @@ class InfoPanel {
 				"border-bottom-left-radius": "",
 				"border-bottom-right-radius": "",
 			});
+			this.$selectors["info-container"].css({
+				"overflow-y": ""
+			})
 		}
 	}
 }
