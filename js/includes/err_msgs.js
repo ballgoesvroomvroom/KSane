@@ -6,7 +6,7 @@ class ErrorMessages {
 
 	static dateInputMalformed = "Date payload does not meet the input requirements"
 	static invalidDates = "Date payload invalid"
-	static invalidDateRange = "End date cannot be earlier than or same as start date"
+	static invalidDateRange = "End date cannot be earlier than start date"
 }
 
 module.exports = ErrorMessages
