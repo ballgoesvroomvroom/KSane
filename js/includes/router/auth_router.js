@@ -144,7 +144,8 @@ router.post("/login", (req, res) => {
 		res.status(200).end();
 	} else {
 		// return 401
-		// following spec
+		// following RFC 7235 authentication spec
+		// guaranteed to be invalid credentials; input validation would have errored and triggered catch block instead
 		res.set("WWW-Authenticate", `Basic realm="Site login"`);
 		res.status(401).json({"error": "Invalid credentials"});
 	}
